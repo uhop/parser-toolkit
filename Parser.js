@@ -93,7 +93,7 @@ Parser.prototype = {
 
 	newLinePattern: /[\u000A\u2028\u2029]|\u000D\u000A|\u000D/g,
 
-	getToken: function(){
+	getToken: function(peek){
 		var buffer = this.buffer;
 		if(!buffer){
 			// no input data: true/false for more data
@@ -120,16 +120,18 @@ Parser.prototype = {
 		var token   = Object.create(state.tokens[index]);
 		token.line  = this.line;
 		token.pos   = this.pos;
-		// update line and position
-		var self = this, rest = matched.length;
-		matched.replace(this.newLinePattern, function(match, offset){
-			rest = matched.length - match.length - offset;
-			++self.line;
-			self.pos = 1;
-			return "";
-		});
-		this.pos += rest;
-		this.buffer = buffer.substring(matched.length);
+		// update line and position, if it was not a peek
+		if(!peek){
+			var self = this, rest = matched.length;
+			matched.replace(this.newLinePattern, function(match, offset){
+				rest = matched.length - match.length - offset;
+				++self.line;
+				self.pos = 1;
+				return "";
+			});
+			this.pos += rest;
+			this.buffer = buffer.substring(matched.length);
+		}
 		// done
 		return token;
 	},
