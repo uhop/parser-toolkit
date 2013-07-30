@@ -10,8 +10,10 @@
 
 	json.addRule("ws", ws);
 
-	json.addRule("value",  any(rule("array"), rule("string"), rule("number"),
+	json.addRule("value",  any(rule("object"), rule("array"), rule("string"), rule("number"),
 		["-", rule("number")], "true", "false", "null"));
+	json.addRule("object", ["{", maybe(rule("pair"), repeat(",", rule("pair"))), "}"]);
+	json.addRule("pair",   [rule("string"), ":", rule("value")]);
 	json.addRule("array",  ["[", maybe(rule("value"), repeat(",", rule("value"))), "]"]);
 	json.addRule("string", ["\"", repeat(any(/[^\"\\]+/, /\\./)), "\""]);
 	json.addRule("number", [any("0", [/[1-9]/, repeat(/\d+/)]),

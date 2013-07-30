@@ -8,7 +8,8 @@ var scanner = new Scanner();
 
 scanner.addBuffer("[0, 1, 0.2, 1e2, 1.2E3, 1.2e-3, 1.2e+34, " +
 	"[], [-0, -1, -0.2, -1e2, -1.2E3, -1.2e-3, -1.2e+34], " +
-	"true, false, null, \"I say: \\\"Hey!\\\"\"]", true);
+	"true, false, null, \"I say: \\\"Hey!\\\"\", " +
+	"{}, {\"a\": 2}, {\"b\": true, \"c\": {}}]", true);
 
 //scanner.addBuffer("1e2", true);
 //scanner.addBuffer("[[], [true], true]", true);
