@@ -5,13 +5,14 @@ var json = require("./json");
 
 
 var scanner = new Scanner();
-/*
+
 scanner.addBuffer("[0, 1, 0.2, 1e2, 1.2E3, 1.2e-3, 1.2e+34, " +
 	"[], [-0, -1, -0.2, -1e2, -1.2E3, -1.2e-3, -1.2e+34], " +
 	"true, false, null, \"I say: \\\"Hey!\\\"\"]", true);
-*/
+
+//scanner.addBuffer("1e2", true);
 //scanner.addBuffer("[[], [true], true]", true);
-scanner.addBuffer("[[]]", true);
+//scanner.addBuffer("[[[]]]", true);
 
 var parser = new Parser(json.value);
 var ws = new Parser(json.ws).getExpectedState();
@@ -24,6 +25,12 @@ for(;;){
 		break;
 	}
 	var token = scanner.getToken(expected);
+	if(token === true){
+		throw Error("Scanner requests more data, which should be impossible.");
+	}
+	if(token === false){
+		token = null;
+	}
 	parser.putToken(token);
 }
 
