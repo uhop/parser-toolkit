@@ -48,11 +48,13 @@
 			if(!a.literal && b.literal){
 				return 1;
 			}
-			if(a.id.length < b.id.length){
-				return -1;
-			}
-			if(a.id.length > b.id.length){
-				return 1;
+			if(a.literal){
+				if(a.id.length < b.id.length){
+					return 1;
+				}
+				if(a.id.length > b.id.length){
+					return -1;
+				}
 			}
 			return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
 		});
