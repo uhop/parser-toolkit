@@ -8,6 +8,7 @@
 		addRule: function addRule(name, rule){
 			this[name] = rule.converted ? rule :
 				convertRule(rule instanceof Array ? rule.slice(0) : [rule]);
+			this[name].name = name;
 		},
 		reset: function(){
 			Object.keys(this).forEach(function(name){
@@ -22,13 +23,6 @@
 					this[name] = this.expand(this[name]);
 				}
 			}
-			["any", "rest"].forEach(function(flagName){
-				for(name in this){
-					if(this.hasOwnProperty(name)){
-						this.assemble(this[name], flagName);
-					}
-				}
-			}, this);
 		},
 		expand: function expand(item){
 			while(typeof item == "function"){
@@ -41,23 +35,44 @@
 				}, this);
 			}
 			return item;
-		},
-		assemble: function assemble(item, flagName){
-			if(item instanceof Array && item[flagName] && item.create){
-				item.create(this);
-			}
-			if(item instanceof Array && item[flagName] !== false){
-				item[flagName] = false;
-				item.forEach(function(value){
-					if(value instanceof Array && value[flagName] !== false){
-						this.assemble(value, flagName);
-					}
-				}, this);
-			}
 		}
 	};
 
+	// rules
+
+	function rule(name){
+		return function(grammar){
+			return grammar[name];
+		};
+	}
+
+	function any(){
+		var rule = convertRule(toArray(arguments));
+		if(rule.length > 1){
+			rule.any = true;
+		}
+		return rule;
+	}
+
+	function maybe(){
+		var rule = convertRule(toArray(arguments));
+		rule.optional = true;
+		return rule;
+	}
+
+	function repeat(){
+		var rule = convertRule(toArray(arguments));
+		rule.optional = true;
+		rule.repeatable = true;
+		return rule;
+	}
+
+	// utilities
+
 	function convertRule(rule){
+		if(!rule.length){
+			throw Error("Rule cannot be empty.")
+		}
 		if(rule.converted){
 			return rule;
 		}
@@ -104,13 +119,22 @@
 	}
 
 	function toRegExpSource(s){
-		if(/\w+/.test(s)){
+		if(/^[a-zA-Z]\w*$/.test(s)){
 			return s + "\\b";
 		}
 		return s.replace(/[#-.]|[[-^]|[?|{}]/g, "\\$&");
 	}
 
-	Grammar.convertRule = convertRule;
+	function toArray(a){
+		return Array.prototype.slice.call(a, 0);
+	}
+
+	// export
+
+	Grammar.rule   = rule;
+	Grammar.any    = any;
+	Grammar.maybe  = maybe;
+	Grammar.repeat = repeat;
 
 	return Grammar;
 });
