@@ -1,2 +1,5 @@
+node_modules/*
 *.sublime-*
-node_modules/
+report/*
+coverage/*
+.AppleDouble
