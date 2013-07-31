@@ -29,9 +29,6 @@ for(;;){
 	if(token === true){
 		throw Error("Scanner requests more data, which should be impossible.");
 	}
-	if(token === false){
-		token = null;
-	}
 	parser.putToken(token);
 }
 

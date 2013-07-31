@@ -63,6 +63,9 @@
 			return val;
 		},
 		putToken: function(token){
+			if(token === false){
+				token = null;
+			}
 			if(token === null){
 				// no match: check alternatives and optional rules
 				while(this.arrayStack.length){
