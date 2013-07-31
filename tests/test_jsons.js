@@ -11,7 +11,7 @@ var scanner = new Scanner(),
 	ws = new Parser(json.ws).getExpectedState();
 
 
-fs.readFile(path.resolve(__dirname, "sample.json"), {encoding: "utf8"}, function(err, data){
+fs.readFile(path.resolve(__dirname, "sample.json"), "utf8", function(err, data){
 	if(err){
 		throw err;
 	}

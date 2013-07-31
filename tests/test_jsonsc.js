@@ -13,7 +13,7 @@ var scanner = new Scanner(),
 var CHUNK_SIZE = 1024;
 
 
-fs.readFile(path.resolve(__dirname, "sample.json"), {encoding: "utf8"}, function(err, data){
+fs.readFile(path.resolve(__dirname, "sample.json"), "utf8", function(err, data){
 	if(err){
 		throw err;
 	}
