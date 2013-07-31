@@ -11,7 +11,7 @@
 		numericChunk = {id: "numericChunk", pattern: /\d{1,256}/},
 		// string tokens
 		plainChunk   = {id: "plainChunk",   pattern: /[^\"\\]{1,256}/},
-		escapedChars = {id: "escapedChars", pattern: /\\(?:[bfnrt\"\\]|u[0-9a-fA-F]{4})/};
+		escapedChars = {id: "escapedChars", pattern: /\\(?:[bfnrt\"\\\/]|u[0-9a-fA-F]{4})/};
 
 	var json = new Grammar();
 
