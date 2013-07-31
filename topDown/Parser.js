@@ -9,6 +9,7 @@
 	Parser.prototype = {
 		reset: function(array, index){
 			this.expected = null;
+			this.triedTokens = [];
 			if(array){
 				this.arrayStack = [array];
 				this.indexStack = [index || 0];
@@ -62,12 +63,14 @@
 			this.expected = val;
 			return val;
 		},
-		putToken: function(token){
+		putToken: function(token, scanner){
 			if(token === false){
 				token = null;
 			}
 			if(token === null){
-				// no match: check alternatives and optional rules
+				// no match: save failed tokens
+				this.triedTokens.push.apply(this.triedTokens, this.expected.tokens);
+				// check alternatives and optional rules
 				while(this.arrayStack.length){
 					var a = this.arrayStack.pop(),
 						i = this.indexStack.pop();
@@ -93,12 +96,22 @@
 					}
 					break;
 				}
-				throw Error("Can't find expected token.");
+				throw Error("Can't find a legal token" +
+						(scanner ? " at (" + scanner.line + ", " + scanner.pos + ") in: " +
+							scanner.buffer.substring(0, 16) +
+							(scanner.buffer.length > 16 ? "..." : "") + ".\n" : ". ") +
+						"Tried: " +
+						this.triedTokens.map(function(token){
+							return "'" + token.id + "'";
+						}).join(", ") + ".");
 			}
 			// found match: skip the rest of alternatives
 			while(this.arrayStack.length && this.arrayStack[this.arrayStack.length - 1].any){
 				this.arrayStack.pop(),
 				this.indexStack.pop();
+			}
+			if(this.triedTokens.length){
+				this.triedTokens = [];
 			}
 			// do something token-specific
 			this.onToken(token);

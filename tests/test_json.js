@@ -29,7 +29,7 @@ for(;;){
 	if(token === true){
 		throw Error("Scanner requests more data, which should be impossible.");
 	}
-	parser.putToken(token);
+	parser.putToken(token, scanner);
 }
 
 if(!scanner.isFinished()){

@@ -45,7 +45,7 @@ fs.readFile(path.resolve(__dirname, "sample.json"), "utf8", function(err, data){
 		}
 		getToken(ws); // skip whitespace
 		var token = getToken(expected);
-		parser.putToken(token);
+		parser.putToken(token, scanner);
 	}
 
 	if(!scanner.isFinished()){

@@ -31,7 +31,7 @@ fs.readFile(path.resolve(__dirname, "sample.json"), "utf8", function(err, data){
 		if(token === true){
 			throw Error("Scanner requests more data, which should be impossible.");
 		}
-		parser.putToken(token);
+		parser.putToken(token, scanner);
 	}
 
 	if(!scanner.isFinished()){
