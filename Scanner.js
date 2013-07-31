@@ -25,6 +25,8 @@
 			return this.noMore && !this.buffer.length;
 		},
 
+		padding: 16,
+
 		// private workings
 
 		newLinePattern: /[\u000A\u2028\u2029]|\u000D\u000A|\u000D/g,
@@ -47,7 +49,7 @@
 				// no match
 				return null;
 			}
-			if(!this.noMore && matched.length == buffer.length){
+			if(!this.noMore && matched.length >= buffer.length - this.padding){
 				// need more information
 				return true;
 			}
