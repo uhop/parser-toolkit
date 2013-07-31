@@ -101,7 +101,7 @@
 				this.indexStack.pop();
 			}
 			// do something token-specific
-			console.log(token.id, " : ", token.value);
+			console.log(token.id + " (" + token.line + ", " + token.pos + "): " + token.value);
 		}
 	};
 
