@@ -101,6 +101,9 @@
 				this.indexStack.pop();
 			}
 			// do something token-specific
+			this.onToken(token);
+		},
+		onToken: function(token){
 			console.log(token.id + " (" + token.line + ", " + token.pos + "): " + token.value);
 		}
 	};
