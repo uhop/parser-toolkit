@@ -3,7 +3,7 @@ var Parser  = require("../topDown/Parser");
 
 var json = require("./json");
 
-var fs = require("fs");
+var fs = require("fs"), path = require("path");
 
 
 var scanner = new Scanner(),
@@ -11,7 +11,7 @@ var scanner = new Scanner(),
 	ws = new Parser(json.ws).getExpectedState();
 
 
-fs.readFile("./sample.json", {encoding: "utf8"}, function(err, data){
+fs.readFile(path.resolve(__dirname, "sample.json"), {encoding: "utf8"}, function(err, data){
 	if(err){
 		throw err;
 	}
