@@ -19,7 +19,7 @@
 		},
 		generate: function generate(){
 			for(var name in this){
-				if(this.hasOwnProperty(name)){
+				if(this.hasOwnProperty(name) && this[name] instanceof Array){
 					this[name] = this.expand(this[name]);
 				}
 			}
