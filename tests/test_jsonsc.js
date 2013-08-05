@@ -7,8 +7,7 @@ var fs = require("fs"), path = require("path");
 
 
 var scanner = new Scanner(),
-	parser = new Parser(json.value),
-	ws = new Parser(json.ws).getExpectedState();
+	parser = new Parser(json.value);
 
 var CHUNK_SIZE = 1024;
 
@@ -43,7 +42,6 @@ fs.readFile(path.resolve(__dirname, "sample.json"), "utf8", function(err, data){
 			// we are done
 			break;
 		}
-		getToken(ws); // skip whitespace
 		var token = getToken(expected);
 		parser.putToken(token, scanner);
 	}

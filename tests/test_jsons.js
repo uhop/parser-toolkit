@@ -7,8 +7,7 @@ var fs = require("fs"), path = require("path");
 
 
 var scanner = new Scanner(),
-	parser = new Parser(json.value),
-	ws = new Parser(json.ws).getExpectedState();
+	parser = new Parser(json.value);
 
 
 fs.readFile(path.resolve(__dirname, "sample.json"), "utf8", function(err, data){
@@ -21,7 +20,6 @@ fs.readFile(path.resolve(__dirname, "sample.json"), "utf8", function(err, data){
 
 	// now let's loop over tokens
 	for(;;){
-		scanner.getToken(ws); // skip whitespace
 		var expected = parser.getExpectedState();
 		if(!expected){
 			// we are done

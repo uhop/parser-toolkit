@@ -16,10 +16,8 @@ scanner.addBuffer("[0, 1, 0.2, 1e2, 1.2E3, 1.2e-3, 1.2e+34, " +
 //scanner.addBuffer("[[[]]]", true);
 
 var parser = new Parser(json.value);
-var ws = new Parser(json.ws).getExpectedState();
 
 for(;;){
-	scanner.getToken(ws); // skip whitespace
 	var expected = parser.getExpectedState();
 	if(!expected){
 		// we are done
