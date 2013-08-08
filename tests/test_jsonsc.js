@@ -1,13 +1,16 @@
 var Scanner = require("../Scanner");
 var Parser  = require("../topDown/Parser");
+//var optimize = require("../topDown/optimize");
 
 var json = require("./json");
 
 var fs = require("fs"), path = require("path");
 
 
+//optimize(json);
+
 var scanner = new Scanner(),
-	parser = new Parser(json.value);
+	parser = new Parser(json.main);
 
 var CHUNK_SIZE = 1024;
 

@@ -4,7 +4,7 @@
 
 	var rule = Grammar.rule, any = Grammar.any, maybe = Grammar.maybe, repeat = Grammar.repeat;
 
-	var ws           = {id: "ws",           pattern: /\s+/},
+	var ws           = {id: "ws",           pattern: /\s{1,256}/},
 		// numeric tokens
 		nonZero      = {id: "nonZero",      pattern: /[1-9]/},
 		exponent     = {id: "exponent",     pattern: /[eE]/},
@@ -15,7 +15,8 @@
 
 	var json = new Grammar();
 
-	json.addRule("ws", maybe(ws));
+	json.addRule("main",   [rule("ws"), rule("value")]);
+	json.addRule("ws",     repeat(ws));
 	json.addRule("value",  [any(rule("object"), rule("array"), rule("string"),
 		rule("number"), ["-", rule("number")], "true", "false", "null"), rule("ws")]);
 	json.addRule("object", ["{", rule("ws"), maybe(rule("pair"),
