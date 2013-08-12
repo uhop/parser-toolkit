@@ -37,12 +37,15 @@
 				// no input data: true/false for more data
 				return !this.noMore;
 			}
-			var index  = -1, matched = "", m, tokens = state.tokens;
-			for(var i = 0, n = tokens.length; i < n; ++i){
-				m = buffer.match(tokens[i].pattern);
-				if(m && m[0].length > matched.length){
-					matched = m[0];
-					index = i;
+			var index  = -1, matched = "", tokens = state.tokens,
+				m = buffer.match(state.pattern);
+			if(m){
+				matched = m[0];
+				for(var i = 1, n = tokens.length; i <= n; ++i){
+					if(m[i]){
+						index = i - 1;
+						break;
+					}
 				}
 			}
 			if(index < 0){

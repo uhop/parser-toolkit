@@ -18,11 +18,44 @@
 			});
 		},
 		generate: function generate(){
+			// expand rules
 			for(var name in this){
 				if(this.hasOwnProperty(name) && this[name] instanceof Array){
 					this[name] = this.expand(this[name]);
 				}
 			}
+			// build a registry
+			var registry = [];
+			for(name in this){
+				if(this.hasOwnProperty(name) && this[name] instanceof Array){
+					var rule = this[name];
+					if(!rule._callers){
+						rule._callers = [];
+						registry.push(rule);
+						enumerateRule(rule, registry);
+					}
+				}
+			}
+			// make states
+			registry.forEach(function(rule){
+				if(!rule._state){
+					makeState(rule);
+				}
+			});
+			// inline states
+			registry.forEach(function(rule){
+				rule.forEach(function(item, index){
+					if(item instanceof Array){
+						rule[index] = item._state;
+					}
+				});
+			});
+			// create patterns
+			registry.forEach(function(rule){
+				rule.forEach(function(item){
+					makePattern(item);
+				});
+			});
 		},
 		expand: function expand(item){
 			while(typeof item == "function"){
@@ -127,6 +160,91 @@
 
 	function toArray(a){
 		return Array.prototype.slice.call(a, 0);
+	}
+
+	function enumerateRule(rule, registry){
+		rule.forEach(function(item, index){
+			if(item instanceof Array){
+				if(item._callers){
+					item._callers.push(rule);
+				}else{
+					item._callers = [rule];
+					registry.push(item);
+					enumerateRule(item, registry);
+				}
+			}else{
+				item.tokens.forEach(function(token, i, tokens){
+					var t = Object.create(token);
+					t.nextArray = [];
+					t.nextIndex = [];
+					tokens[i] = t;
+				});
+			}
+		});
+	}
+
+	function makeState(rule){
+		if(rule.any){
+			var tokens = [];
+			rule.forEach(function(_, index){
+				getState(rule, index, true).tokens.forEach(function(token){
+					tokens.push(token);
+				});
+			});
+			if(!rule._state){
+				rule._state = {};
+			}
+			rule._state.tokens = tokens;
+		}else{
+			var i = 0, n = rule.length, tokens = [], optional = true;
+			for(; i < n; ++i){
+				var state = getState(rule, i);
+				tokens.push.apply(tokens, state.tokens);
+				if(!state.optional){
+					optional = false;
+					break;
+				}
+			}
+			if(!rule._state){
+				rule._state = {};
+			}
+			rule._state.tokens   = tokens;
+			rule._state.optional = optional || rule.optional;
+		}
+	}
+
+	function getState(rule, index, naked){
+		var item = rule[index];
+		if(item instanceof Array){
+			if(!item._state){
+				makeState(item);
+			}
+			item = item._state;
+		}
+		if(!naked){
+			var newIndex = index + 1;
+			if(newIndex === rule.length && rule.repeatable){
+				newIndex = 0;
+			}
+			if(newIndex < rule.length){
+				item = Object.create(item);
+				item.tokens = item.tokens.map(function(token){
+					var t = Object.create(token);
+					t.nextArray = [rule].concat(token.nextArray);
+					t.nextIndex = [newIndex].concat(token.nextIndex);
+					return t;
+				});
+			}
+		}
+		return item;
+	}
+
+	function makePattern(state){
+		var patterns = state.tokens.map(function(token){
+				var pattern = token.pattern.source;
+				return pattern.substring(4, pattern.length - 1);
+			});
+		state.pattern = new RegExp("^(?:(" + patterns.join(")|(") + "))");
 	}
 
 	// export
