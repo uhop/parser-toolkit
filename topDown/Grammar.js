@@ -10,13 +10,6 @@
 				convertRule(rule instanceof Array ? rule.slice(0) : [rule]);
 			this[name].name = name;
 		},
-		reset: function(){
-			Object.keys(this).forEach(function(name){
-				if(this.hasOwnProperty(name)){
-					delete this[name];
-				}
-			});
-		},
 		generate: function generate(){
 			// expand rules
 			for(var name in this){
@@ -38,7 +31,7 @@
 			}
 			// make states
 			registry.forEach(function(rule){
-				if(!rule._state){
+				if(!rule.state){
 					makeState(rule);
 				}
 			});
@@ -46,7 +39,7 @@
 			registry.forEach(function(rule){
 				rule.forEach(function(item, index){
 					if(item instanceof Array){
-						rule[index] = item._state;
+						rule[index] = item.state;
 					}
 				});
 			});
@@ -80,7 +73,7 @@
 	}
 
 	function any(){
-		var rule = convertRule(toArray(arguments));
+		var rule = convertRule(Array.prototype.slice.call(arguments, 0));
 		if(rule.length > 1){
 			rule.any = true;
 		}
@@ -88,15 +81,14 @@
 	}
 
 	function maybe(){
-		var rule = convertRule(toArray(arguments));
+		var rule = convertRule(Array.prototype.slice.call(arguments, 0));
 		rule.optional = true;
 		return rule;
 	}
 
 	function repeat(){
-		var rule = convertRule(toArray(arguments));
-		rule.optional = true;
-		rule.repeatable = true;
+		var rule = convertRule(Array.prototype.slice.call(arguments, 0));
+		rule.optional = rule.repeatable = true;
 		return rule;
 	}
 
@@ -152,14 +144,8 @@
 	}
 
 	function toRegExpSource(s){
-		if(/^[a-zA-Z]\w*$/.test(s)){
-			return s + "\\b";
-		}
-		return s.replace(/[#-.]|[[-^]|[?|{}]/g, "\\$&");
-	}
-
-	function toArray(a){
-		return Array.prototype.slice.call(a, 0);
+		return /^[a-zA-Z]\w*$/.test(s) ? s + "\\b" :
+			s.replace(/[#-.]|[[-^]|[?|{}]/g, "\\$&");
 	}
 
 	function enumerateRule(rule, registry){
@@ -191,10 +177,10 @@
 					tokens.push(token);
 				});
 			});
-			if(!rule._state){
-				rule._state = {};
+			if(!rule.state){
+				rule.state = {};
 			}
-			rule._state.tokens = tokens;
+			rule.state.tokens = tokens;
 		}else{
 			var i = 0, n = rule.length, tokens = [], optional = true;
 			for(; i < n; ++i){
@@ -205,21 +191,21 @@
 					break;
 				}
 			}
-			if(!rule._state){
-				rule._state = {};
+			if(!rule.state){
+				rule.state = {};
 			}
-			rule._state.tokens   = tokens;
-			rule._state.optional = optional || rule.optional;
+			rule.state.tokens   = tokens;
+			rule.state.optional = optional || rule.optional;
 		}
 	}
 
 	function getState(rule, index, naked){
 		var item = rule[index];
 		if(item instanceof Array){
-			if(!item._state){
+			if(!item.state){
 				makeState(item);
 			}
-			item = item._state;
+			item = item.state;
 		}
 		if(!naked){
 			var newIndex = index + 1;
