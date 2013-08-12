@@ -25,8 +25,8 @@ fs.readFile(path.resolve(__dirname, "sample.json.gz"), function(err, data){
 		}
 
 		function addChunk(){
-			var chunk = data.slice(0, CHUNK_SIZE);
-			data = data.slice(CHUNK_SIZE);
+			var chunk = data.slice(0, Math.min(CHUNK_SIZE, data.length));
+			data = chunk.length < data.length ? data.slice(CHUNK_SIZE) : "";
 			scanner.addBuffer(chunk, !data.length);
 		}
 
