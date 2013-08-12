@@ -106,7 +106,7 @@
 		return {
 			id: id,
 			literal: id === literal,
-			pattern: new RegExp("^(" + source + ")")
+			pattern: new RegExp("^(?:" + source + ")")
 		};
 	}
 
