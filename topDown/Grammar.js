@@ -2,40 +2,21 @@
 ([], function(){
 	"use strict";
 
-	function Grammar(){};
-
-	Grammar.prototype = {
-		addRule: function addRule(name, rule){
-			this[name] = rule.converted ? rule :
-				convertRule(rule instanceof Array ? rule.slice(0) : [rule]);
-			this[name].name = name;
-		},
-		reset: function(){
-			Object.keys(this).forEach(function(name){
-				if(this.hasOwnProperty(name)){
-					delete this[name];
-				}
-			});
-		},
-		generate: function generate(){
-			for(var name in this){
-				if(this.hasOwnProperty(name) && this[name] instanceof Array){
-					this[name] = this.expand(this[name]);
-				}
+	function Grammar(grammar){
+		var keys = Object.keys(grammar);
+		// convert rules
+		keys.forEach(function(name){
+			var rule = grammar[name];
+			this[name] = rule = rule instanceof Array ? rule : [rule];
+			rule.name = name;
+		}, this);
+		// expand internal references and prepare states
+		var expand = makeExpander(this);
+		keys.forEach(function(name){
+			if(this[name] instanceof Array){
+				this[name] = walk(this[name], expand);
 			}
-		},
-		expand: function expand(item){
-			while(typeof item == "function"){
-				item = item(this);
-			}
-			if(item instanceof Array && !item.expanded){
-				item.expanded = true;
-				item.forEach(function(value, index, array){
-					array[index] = this.expand(value);
-				}, this);
-			}
-			return item;
-		}
+		}, this);
 	};
 
 	// rules
@@ -47,7 +28,7 @@
 	}
 
 	function any(){
-		var rule = convertRule(toArray(arguments));
+		var rule = Array.prototype.slice.call(arguments, 0);
 		if(rule.length > 1){
 			rule.any = true;
 		}
@@ -55,13 +36,13 @@
 	}
 
 	function maybe(){
-		var rule = convertRule(toArray(arguments));
+		var rule = Array.prototype.slice.call(arguments, 0);
 		rule.optional = true;
 		return rule;
 	}
 
 	function repeat(){
-		var rule = convertRule(toArray(arguments));
+		var rule = Array.prototype.slice.call(arguments, 0);
 		rule.optional = true;
 		rule.repeatable = true;
 		return rule;
@@ -69,49 +50,55 @@
 
 	// utilities
 
-	function convertRule(rule){
-		if(!rule.length){
-			throw Error("Rule cannot be empty.")
+	function walk(item, action){
+		item = action(item);
+		if(item instanceof Array && !item.inspected){
+			item.inspected = true;
+			if(!item.length){
+				throw Error("Empty rule: " + (item.name || "internal"));
+			}
+			item.forEach(function(value, index){
+				item[index] = walk(value, action);
+			});
 		}
-		if(rule.converted){
-			return rule;
-		}
-		rule.converted = true;
-		rule.forEach(function(item, index, array){
-			if(item instanceof Array && !item.converted){
-				array[index] = convertRule(item);
-				return;
-			}
-			if(typeof item == "string" || item instanceof RegExp){
-				array[index] = {tokens: [makeToken(item)]};
-				return;
-			}
-			if(item.pattern){
-				array[index] = {tokens: [sanitizeToken(item)]};
-				return;
-			}
-		});
-		return rule;
+		return item;
 	}
 
-	function makeToken(literal){
-		var id, source;
-		if(literal instanceof RegExp){
-			id = source = literal.source;
-		}else{
-			// typeof literal == "string"
-			id = literal;
-			source = toRegExpSource(literal);
-		}
+	function makeExpander(grammar){
+		return function expand(item){
+			for(; typeof item == "function"; item = item(grammar));
+			if(typeof item == "string"){
+				return {tokens: [makeTokenFromString(item)]};
+			}
+			if(item instanceof RegExp){
+				return {tokens: [makeTokenFromRegExp(item)]};
+			}
+			if(item.pattern){
+				return {tokens: [sanitizeToken(item)]};
+			}
+			return item;
+		};
+	}
+
+	function makeTokenFromString(literal){
 		return {
-			id: id,
-			literal: id === literal,
-			pattern: new RegExp("^(?:" + source + ")")
+			id:      literal,
+			literal: true,
+			pattern: new RegExp("^(?:" + toRegExpSource(literal) + ")")
+		};
+	}
+
+	function makeTokenFromRegExp(literal){
+		return {
+			id:      literal.source,
+			literal: false,
+			pattern: new RegExp("^(?:" + literal.source + ")")
 		};
 	}
 
 	function sanitizeToken(token){
-		var p = makeToken(token.pattern),
+		var p = (typeof token.pattern == "string" ?
+				makeTokenFromString : makeTokenFromRegExp)(token.pattern),
 			t = Object.create(token);
 		t.literal = p.literal;
 		t.pattern = p.pattern;
@@ -119,14 +106,8 @@
 	}
 
 	function toRegExpSource(s){
-		if(/^[a-zA-Z]\w*$/.test(s)){
-			return s + "\\b";
-		}
-		return s.replace(/[#-.]|[[-^]|[?|{}]/g, "\\$&");
-	}
-
-	function toArray(a){
-		return Array.prototype.slice.call(a, 0);
+		return /^[a-zA-Z]\w*$/.test(s) ? s + "\\b" :
+			s.replace(/[#-.]|[[-^]|[?|{}]/g, "\\$&");
 	}
 
 	// export
