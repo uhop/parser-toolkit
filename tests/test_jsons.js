@@ -10,7 +10,7 @@ var fs = require("fs"), path = require("path"), zlib = require("zlib");
 //optimize(json);
 
 var scanner = new Scanner(),
-	parser = new Parser(json.main);
+	parser = new Parser(json);
 
 
 fs.readFile(path.resolve(__dirname, "sample.json.gz"), function(err, data){
@@ -34,13 +34,14 @@ fs.readFile(path.resolve(__dirname, "sample.json.gz"), function(err, data){
 			}
 			var token = scanner.getToken(expected);
 			if(token === true){
-				throw Error("Scanner requests more data, which should be impossible.");
+				throw Error("Scanner requests more data, which is impossible.");
 			}
 			parser.putToken(token, scanner);
 		}
 
 		if(!scanner.isFinished()){
-			throw Error("Scanner has some unprocessed symbols.");
+			throw Error("Unprocessed symbols: " +
+				(scanner.buffer.length > 16 ? scanner.buffer.substring(0, 16) + "..." : scanner.buffer));
 		}
 	});
 });

@@ -2,122 +2,66 @@
 ([], function(){
 	"use strict";
 
-	function Parser(array, index){
-		this.reset(array, index);
+	function Parser(grammar, name, index){
+		this.reset(grammar, name, index);
 	}
 
 	Parser.prototype = {
-		reset: function(array, index){
+		reset: function(grammar, name, index){
 			this.expected = null;
 			this.triedTokens = [];
-			if(array){
-				this.arrayStack = [array];
-				this.indexStack = [index || 0];
-			}else{
-				this.arrayStack = [];
-				this.indexStack = [];
-			}
+			this.arrayStack = [grammar[name || "main"]];
+			this.indexStack = [index || 0];
 		},
 		getExpectedState: function(){
-			for(var allowAny = true;;){
-				if(!this.arrayStack.length){
-					return null;
+			while(this.arrayStack.length){
+				var a = this.arrayStack.pop(),
+					i = this.indexStack.pop();
+				if(i < a.length){
+					var value = a[i++];
+					this.arrayStack.push(a);
+					this.indexStack.push(i);
+					return this.expected = value;
+				}
+				if(a.repeatable){
+					this.arrayStack.push(a);
+					this.indexStack.push(0);
+				}
+			}
+			return null;
+		},
+		putToken: function(token, scanner){
+			if(token){
+				this.arrayStack.push.apply(this.arrayStack, token.nextArray);
+				this.indexStack.push.apply(this.indexStack, token.nextIndex);
+				if(this.triedTokens.length){
+					this.triedTokens = [];
+				}
+				this.onToken(token);
+			}else{
+				// no match: save failed tokens
+				this.triedTokens.push.apply(this.triedTokens, this.expected.tokens);
+				// check optional items
+				if(this.expected.optional){
+					return;
 				}
 				var a = this.arrayStack.pop(),
 					i = this.indexStack.pop();
-				if(!allowAny && a.any){
-					// skip other alternatives, if we return successfully
-					// unsuccessful returns are processed in putToken()
-					continue;
-				}
-				if(i === a.length){
-					// rule is finished
-					if(a.any){
-						// we have no alternatives: recalculate
-						this.putToken(null);
-						allowAny = true;
-						continue;
-					}
-					if(a.repeatable){
-						// restart the rule
-						this.arrayStack.push(a);
-						this.indexStack.push(0);
-						continue;
-					}
-					// go up one level
-					allowAny = false;
-					continue;
-				}
-				var val = a[i];
-				this.arrayStack.push(a);
-				this.indexStack.push(i + 1);
-				if(val instanceof Array){
-					this.arrayStack.push(val);
-					this.indexStack.push(0);
-					allowAny = true;
-					continue;
-				}
-				// val is a state
-				break;
-			}
-			this.expected = val;
-			return val;
-		},
-		putToken: function(token, scanner){
-			if(token === false){
-				token = null;
-			}
-			if(token === null){
-				// no match: save failed tokens
-				this.triedTokens.push.apply(this.triedTokens, this.expected.tokens);
-				// check alternatives and optional rules
-				while(this.arrayStack.length){
-					var a = this.arrayStack.pop(),
-						i = this.indexStack.pop();
-					if(a.any){
-						if(i < a.length){
-							// try next alternative
-							this.arrayStack.push(a);
-							this.indexStack.push(i);
-							return;
-						}
-						continue;
-					}
-					if(a.optional){
-						if(i === 1){
-							// skip the rest, go up one level
-							return;
-						}
-						break;
-					}
-					// regular rule
-					if(i === 1){
-						continue;
-					}
-					break;
+				if(a.optional && i === 1){
+					return;
 				}
 				throw Error("Can't find a legal token" +
 						(scanner ? " at (" + scanner.line + ", " + scanner.pos + ") in: " +
-							scanner.buffer.substring(0, 16) +
-							(scanner.buffer.length > 16 ? "..." : "") + ".\n" : ". ") +
+							(scanner.buffer.length > 16 ? scanner.buffer.substring(0, 16) + "..." :
+								scanner.buffer) + "\n" : ".\n") +
 						"Tried: " +
 						this.triedTokens.map(function(token){
 							return "'" + token.id + "'";
 						}).join(", ") + ".");
 			}
-			// found match: skip the rest of alternatives
-			while(this.arrayStack.length && this.arrayStack[this.arrayStack.length - 1].any){
-				this.arrayStack.pop(),
-				this.indexStack.pop();
-			}
-			if(this.triedTokens.length){
-				this.triedTokens = [];
-			}
-			// do something token-specific
-			this.onToken(token);
 		},
 		onToken: function(token){
-			//console.log(token.id + " (" + token.line + ", " + token.pos + "): " + token.value);
+			console.log(token.id + " (" + token.line + ", " + token.pos + "): " + token.value);
 		}
 	};
 

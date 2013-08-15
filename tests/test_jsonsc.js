@@ -10,7 +10,7 @@ var fs = require("fs"), path = require("path"), zlib = require("zlib");
 //optimize(json);
 
 var scanner = new Scanner(),
-	parser = new Parser(json.main);
+	parser = new Parser(json);
 
 var CHUNK_SIZE = 1024;
 
@@ -54,7 +54,8 @@ fs.readFile(path.resolve(__dirname, "sample.json.gz"), function(err, data){
 		}
 
 		if(!scanner.isFinished()){
-			throw Error("Scanner has some unprocessed symbols.");
+			throw Error("Unprocessed symbols: " +
+				(scanner.buffer.length > 16 ? scanner.buffer.substring(0, 16) + "..." : scanner.buffer));
 		}
 	});
 });
