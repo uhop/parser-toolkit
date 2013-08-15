@@ -37,23 +37,21 @@
 				// no input data: true/false for more data
 				return !this.noMore;
 			}
-			var index  = -1, matched = "", m, tokens = state.tokens;
-			for(var i = 0, n = tokens.length; i < n; ++i){
-				m = buffer.match(tokens[i].pattern);
-				if(m && m[0].length > matched.length){
-					matched = m[0];
-					index = i;
-				}
-			}
-			if(index < 0){
-				// no match
+			var m = buffer.match(state.pattern);
+			if(!m){
 				return null;
 			}
-			if(!this.noMore && matched.length >= buffer.length - this.padding){
+			if(!this.noMore && m[0].length >= buffer.length - this.padding){
 				// need more information
 				return true;
 			}
-			var token   = Object.create(tokens[index]);
+			var matched = m[0], index = 0;
+			if(state.tokens.length > 1){
+				for(index = 1; !m[index]; ++index);
+				--index;
+			}
+			// prepare the found token
+			var token   = Object.create(state.tokens[index]);
 			token.value = matched;
 			token.line  = this.line;
 			token.pos   = this.pos;
