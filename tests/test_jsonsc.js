@@ -1,19 +1,15 @@
 var Scanner = require("../Scanner");
 var Parser  = require("../topDown/Parser");
-//var optimize = require("../topDown/optimize");
 
 var json = require("./json");
 
 var fs = require("fs"), path = require("path"), zlib = require("zlib");
 
 
-//optimize(json);
+var CHUNK_SIZE = 1024;
 
 var scanner = new Scanner(),
 	parser = new Parser(json);
-
-var CHUNK_SIZE = 1024;
-
 
 fs.readFile(path.resolve(__dirname, "sample.json.gz"), function(err, data){
 	if(err){

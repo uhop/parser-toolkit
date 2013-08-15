@@ -3,8 +3,8 @@ var Parser   = require("../topDown/Parser");
 
 var json = require("./json");
 
-var printGrammar = require("./printGrammar");
-printGrammar(json);
+// var printGrammar = require("./printGrammar");
+// printGrammar(json);
 
 
 var scanner = new Scanner();

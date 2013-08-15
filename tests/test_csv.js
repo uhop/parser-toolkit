@@ -3,9 +3,9 @@ var Parser   = require("../topDown/Parser");
 
 var csv = require("./csv");
 
+// var printGrammar = require("./printGrammar");
+// printGrammar(csv);
 
-var printGrammar = require("./printGrammar");
-printGrammar(csv);
 
 var scanner = new Scanner();
 

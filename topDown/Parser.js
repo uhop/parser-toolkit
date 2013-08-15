@@ -61,7 +61,7 @@
 			}
 		},
 		onToken: function(token){
-			console.log(token.id + " (" + token.line + ", " + token.pos + "): " + token.value);
+			//console.log(token.id + " (" + token.line + ", " + token.pos + "): " + token.value);
 		}
 	};
 
