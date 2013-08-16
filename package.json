@@ -1,6 +1,6 @@
 {
   "name": "parser-toolkit",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Toolkit to make streamable scanners and parsers.",
   "homepage": "http://github.com/uhop/parser-toolkit",
   "bugs": "http://github.com/uhop/parser-toolkit/issues",
