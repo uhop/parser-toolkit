@@ -5,31 +5,50 @@ parser-toolkit is a collection of scanner and parser components, which allows fa
 A standard-compiant implementation of JSON is included as a test. This is how JSON is defined:
 
 ```js
-var ws = {id: "ws", pattern: /\s+/},
+var ws           = {id: "ws",           pattern: /\s{1,256}/},
     // numeric tokens
     nonZero      = {id: "nonZero",      pattern: /[1-9]/},
     exponent     = {id: "exponent",     pattern: /[eE]/},
     numericChunk = {id: "numericChunk", pattern: /\d{1,256}/},
     // string tokens
     plainChunk   = {id: "plainChunk",   pattern: /[^\"\\]{1,256}/},
-    escapedChars = {id: "escapedChars", pattern: /\\(?:[bfnrt\"\\\/]|u[0-9a-fA-F]{4})/};
+    escapedChars = {id: "escapedChars",
+        pattern: /\\(?:[bfnrt\"\\\/]|u[0-9a-fA-F]{4})/};
 
-var json = new Grammar();
-
-json.addRule("ws", ws);
-
-json.addRule("value",  any(rule("object"), rule("array"), rule("string"),
-    rule("number"), ["-", rule("number")], "true", "false", "null"));
-json.addRule("object", ["{", maybe(rule("pair"), repeat(",", rule("pair"))), "}"]);
-json.addRule("pair",   [rule("string"), ":", rule("value")]);
-json.addRule("array",  ["[", maybe(rule("value"), repeat(",", rule("value"))), "]"]);
-json.addRule("string", ["\"", repeat(any(plainChunk, escapedChars)), "\""]);
-json.addRule("number", [any("0", [nonZero, repeat(numericChunk)]),
-    maybe(".", repeat(numericChunk)),
-    maybe(exponent, maybe(maybe(any("-", "+")), repeat(numericChunk)))
-]);
-
-json.generate();
+var json = new Grammar({
+    main:   [rule("ws"), rule("value")],
+    ws:     repeat(ws),
+    value:  [
+        any(rule("object"), rule("array"), rule("string"),
+            rule("number"), ["-", rule("number")],
+            "true", "false", "null"),
+        rule("ws")
+    ],
+    object: [
+        "{",
+            rule("ws"),
+            maybe(rule("pair"),
+                repeat(",", rule("ws"), rule("pair"))),
+        "}"
+    ],
+    pair:   [
+        rule("string"), rule("ws"), ":", rule("ws"), rule("value")
+    ],
+    array:  [
+        "[",
+            rule("ws"),
+            maybe(rule("value"),
+                repeat(",", rule("ws"), rule("value"))),
+        "]"
+    ],
+    string: ["\"", repeat(any(plainChunk, escapedChars)), "\""],
+    number: [
+        any("0", [nonZero, repeat(numericChunk)]),
+        maybe(".", repeat(numericChunk)),
+        maybe(exponent, maybe(any("-", "+")),
+            numericChunk, repeat(numericChunk))
+    ]
+});
 ```
 
 The whole definition is taken verbatim from [JSON.org](http://json.org/).
