@@ -4,7 +4,7 @@
 
 	function Grammar(grammar){
 		var keys = Object.keys(grammar);
-		// convert rules
+		// convert and copy rules
 		keys.forEach(function(name){
 			var rule = grammar[name];
 			rule = this[name] = rule instanceof Array ? rule : [rule];
@@ -31,7 +31,7 @@
 		}, this);
 	};
 
-	// rules
+	// helpers
 
 	function rule(name){
 		return function(grammar){
