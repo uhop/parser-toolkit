@@ -29,7 +29,7 @@
 				}
 			});
 		}, this);
-	};
+	}
 
 	// helpers
 
@@ -133,7 +133,7 @@
 			makeState(item);
 			item = item.state;
 		}
-		if(!naked){
+		if(!naked && typeof item == "object"){
 			var newIndex = index + 1;
 			if(newIndex === rule.length && rule.repeatable){
 				newIndex = 0;

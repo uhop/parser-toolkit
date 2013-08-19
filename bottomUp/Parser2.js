@@ -2,19 +2,20 @@
 ([], function(){
 	"use strict";
 
-	var consumeReadyState = {consume: 1, bracket: 1, eos: 1},
+	var consumeReadyState = {consume: 1, eos: 1},
 		eoi = {id: "End of Input", left: -1, right: -1};
 
-	function Parser(grammar, name){
-		this.reset(grammar, name);
+	function Parser2(grammar, name, priority){
+		this.reset(grammar, name, priority);
 	}
 
-	Parser.prototype = {
-		reset: function(grammar, name){
+	Parser2.prototype = {
+		reset: function(grammar, name, priority){
 			this.stack    = [];
 			this.state    = "supply";
 			this.grammar  = grammar;
 			this.expected = name || "main";
+			this.priority = priority || 0;
 		},
 		_consume: function(){
 			if(this.state == "eos"){
@@ -23,13 +24,7 @@
 			}
 			//assert((this.state in consumeReadyState) && this.stack.length);
 			var token = this.stack.pop();
-			if(this.state == "consume"){
-				this._decide();
-			}else{
-				//assert(this.state == "bracket");
-				this.stack.push(this.token);
-				this.state = "supply";
-			}
+			this._decide();
 			return token;
 		},
 		_decide: function(token){
@@ -39,22 +34,14 @@
 			}
 
 			var left  = this.token.left,
-				right = this.stack.length ? this.stack[this.stack.length - 1].right : 0;
+				right = this.stack.length ? this.stack[this.stack.length - 1].right : this.priority;
 
 			if(right < left){
 				this.expected = this.token.next;
 				this.stack.push(this.token);
 				this.state = "supply";
-			}else if(right > left){
-				this.state = this.stack.length ? "consume" : "eos";
 			}else{
-				if(this.stack.length){
-					if(this.grammar.brackets[this.stack[this.stack.length - 1].value] === this.token.value){
-						this.state = "bracket";
-						return;
-					}
-				}
-				throw Error("Unbalanced brackets or an operator is not associative: " + this.token.id);
+				this.state = this.stack.length ? "consume" : "eos";
 			}
 		},
 		getExpectedState: function(){
@@ -91,5 +78,5 @@
 		}
 	};
 
-	return Parser;
+	return Parser2;
 });
