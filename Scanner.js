@@ -37,7 +37,7 @@
 				// no input data: true/false for more data
 				return !this.noMore;
 			}
-			var m = buffer.match(state.pattern);
+			var m = state.pattern.exec(buffer);
 			if(!m){
 				return null;
 			}
@@ -66,7 +66,6 @@
 						self.pos = 1;
 						return "";
 					});
-					this.pos += rest;
 				}else{
 					for(var i = 0, n = rest; i < n; ++i){
 						switch(matched.charCodeAt(i)){

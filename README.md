@@ -1,4 +1,10 @@
-# parser-toolkit [![Build Status](https://secure.travis-ci.org/uhop/parser-toolkit.png?branch=master)](http://travis-ci.org/uhop/parser-toolkit)
+# parser-toolkit
+
+[![Build status][travis-image]][travis-url]
+[![Dependencies][deps-image]][deps-url]
+[![devDependencies][dev-deps-image]][dev-deps-url]
+[![NPM version][npm-image]][npm-url]
+
 
 parser-toolkit is a collection of scanner and parser components, which allows fast creation of efficient parser for custom languages. The main point of a toolkit is to support streamable chunked input.
 
@@ -54,3 +60,12 @@ var json = new Grammar({
 The whole definition is taken verbatim from [JSON.org](http://json.org/).
 
 The test file `sample.json` is copied as is from an open source project [json-simple](https://code.google.com/p/json-simple/) under Apache License 2.0.
+
+[npm-image]:      https://img.shields.io/npm/v/parser-toolkit.svg
+[npm-url]:        https://npmjs.org/package/parser-toolkit
+[deps-image]:     https://img.shields.io/david/uhop/parser-toolkit.svg
+[deps-url]:       https://david-dm.org/uhop/parser-toolkit
+[dev-deps-image]: https://img.shields.io/david/dev/uhop/parser-toolkit.svg
+[dev-deps-url]:   https://david-dm.org/uhop/parser-toolkit#info=devDependencies
+[travis-image]:   https://img.shields.io/travis/uhop/parser-toolkit.svg
+[travis-url]:     https://travis-ci.org/uhop/parser-toolkit

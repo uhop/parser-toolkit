@@ -50,10 +50,13 @@
 				if(a.optional && i === 1){
 					return;
 				}
+				var buffer = scanner.buffer;
 				throw Error("Can't find a legal token" +
 						(scanner ? " at (" + scanner.line + ", " + scanner.pos + ") in: " +
-							(scanner.buffer.length > 16 ? scanner.buffer.substring(0, 16) + "..." :
-								scanner.buffer) + "\n" : ".\n") +
+							(buffer.length > 16 ?
+								(Buffer.isBuffer(buffer) ? buffer.toString("utf8", 0, 16) :
+									buffer.substring(0, 16)) + "..." :
+								buffer.toString()) + "\n" : ".\n") +
 						"Tried: " +
 						this.triedTokens.map(function(token){
 							return "'" + token.id + "'";

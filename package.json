@@ -1,6 +1,6 @@
 {
   "name": "parser-toolkit",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Toolkit to make streamable scanners and parsers.",
   "homepage": "http://github.com/uhop/parser-toolkit",
   "bugs": "http://github.com/uhop/parser-toolkit/issues",
@@ -24,10 +24,5 @@
     "parser"
   ],
   "author": "Eugene Lazutkin <eugene.lazutkin@gmail.com> (http://lazutkin.com/)",
-  "licenses": [
-    {
-      "type": "New BSD",
-      "url": "http://github.com/uhop/parser-toolkit/blob/master/LICENSE"
-    }
-  ]
+  "license": "BSD-3-Clause"
 }
